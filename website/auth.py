@@ -1,9 +1,25 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+from . import db
+from .models import User
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth= Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password1')
+
+        user = user.query.filter_by(email=email)
+        if user:
+            if check_password_hash(user.password, password):
+                flash('Logged in Successfully!', category='success')
+            else:
+                flash('Incorrect password. Please try again.', category='err')
+        else:
+            flash('Email dosn\'t exist.', category='err')
+
     return render_template('login.html', user='Marco')
 
 @auth.route('/logout')
@@ -27,6 +43,10 @@ def signup():
         elif len(password1) < 7:
             flash('password is too short. Must be atleast 7 characters long.', category='err')
         else:
+            new_user = User(email=email, first_name=first_name, password=generate_password_hash(password1, method='sha256'))
+            db.session.add(new_user)
+            db.session.commit()
             flash('Account created Successfully!', category='success')
+            return redirect(url_for('views.home'))
 
     return render_template('signup.html')
