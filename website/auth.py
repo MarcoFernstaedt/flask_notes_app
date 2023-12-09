@@ -3,15 +3,15 @@ from . import db
 from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 
-auth= Blueprint('auth', __name__)
+auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
-        password = request.form.get('password1')
+        password = request.form.get('password')
 
-        user = user.query.filter_by(email=email)
+        user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in Successfully!', category='success')
@@ -19,6 +19,7 @@ def login():
                 flash('Incorrect password. Please try again.', category='err')
         else:
             flash('Email dosn\'t exist.', category='err')
+            return redirect(url_for('views.home'))
 
     return render_template('login.html', user='Marco')
 
@@ -33,8 +34,11 @@ def signup():
         first_name = request.form.get('firstName')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
-
-        if len(email) < 4:
+        
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('r already exist.', category='errpython main.py')
+        elif len(email) < 4:
             flash('Email Address is too short. Must be atleast 4 characters long.', category='err')
         elif len(first_name )< 2:
             flash('Name is too short. Must be atleast 2 characters long.', category='err')
