@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from .models import User
@@ -16,6 +16,7 @@ def login():
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in Successfully!', category='success')
+                login_user(user, remember=True)
             else:
                 flash('Incorrect password. Please try again.', category='err')
         else:
@@ -51,6 +52,7 @@ def signup():
             new_user = User(email=email, first_name=first_name, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()
+            login_user(user, remember=True)
             flash('Account created Successfully!', category='success')
             return redirect(url_for('views.home'))
 
