@@ -1,2 +1,2 @@
 # flask_notes_app
-Web App that allows a user to store notes
+This is a application to help me inprove my skillset in python development.
